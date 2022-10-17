@@ -8,12 +8,7 @@
     <link href="{{asset('css/app.css')}}" rel="stylesheet"/>
 </head>
 <body>
-    <div class="container text-center">
-        <h1>Sito in costruzione</h1>
-    </div>
-
-    
     <div id="root"></div>
-    <script>src="{{asset('js/front.js')}}"</script>
+    <script src="{{asset('js/front.js')}}"></script>
 </body>
 </html>
