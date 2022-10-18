@@ -18,7 +18,7 @@ class TagController extends Controller
     {
         $tags = Tag::all();
 
-        return view('tags.index', ['tags' => $tags]);
+        return view('admin.tags.index', compact('tags'));
     }
 
     /**
@@ -64,7 +64,7 @@ class TagController extends Controller
      */
     public function show(Tag $tag)
     {
-        return view('tags.show', ['tag' => $tag]);
+        return view('admin.tags.show', compact('tag'));
     }
 
     /**

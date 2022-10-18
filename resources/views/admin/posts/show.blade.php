@@ -3,34 +3,36 @@
 @section('content')
 
     <div class="container text-center">
-        <div>
-            <h1 class="mb-3">{{$post->title}}</h1>
-        </div>
+
+        <h1>{{$post->title}}</h1>
+
+        @if ($post->cover)
+            <img src="{{asset('storage/' . $post->cover)}}" class="img-fluid"/>
+        @else
+            <img src="{{asset('img/no_cover.jpg')}}" class="img-fluid"/>
+        @endif
 
         <h4>
-            <span class="font-weight-bold mb-3">Slug:</span>
+            <span class="fw-bold">Slug:</span>
             {{$post->slug}}
         </h4>
-
         <div>
-            <span class="font-weight-bold mb-3">Content:</span>
+            <span class="fw-bold">Content:</span>
             {{$post->content}}
         </div>
-
-
         <div>
-            <span class="font-weight-bold mb-3">Category:</span>
-            {{$post->category?$post->category->name: '-'}}
+            <span class="fw-bold">Category:</span>
+            {{$post->category?$post->category->name:'-'}}
         </div>
-
         <div>
-            <span class="font-weight-bold mb-3">Tags:</span>
+            <span class="fw-bold">Tags:</span>
             @foreach ($post->tags as $tag)
-                {{$tag->name}},
+                {{$tag->name}};
+                {{$tag->name}};
             @endforeach
         </div>
 
-        <a href="{{route('admin.posts.index')}}" class="btn btn-primary mb-3">Back</a>
+        <a href="{{route('admin.posts.index')}}" class="btn btn-primary mt-5">Back</a>
     </div>
 
 

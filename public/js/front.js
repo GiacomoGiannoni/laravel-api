@@ -1919,7 +1919,7 @@ __webpack_require__.r(__webpack_exports__);
         label: 'Blog',
         link: '#'
       }, {
-        label: 'About US',
+        label: 'About Us',
         link: '#'
       }, {
         label: 'Contact',
@@ -1945,20 +1945,29 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       posts: [],
+      currentPage: 1,
+      lastPage: null,
       loading: true
     };
   },
   methods: {
-    getPosts: function getPosts() {
+    getPosts: function getPosts(page) {
       var _this = this;
 
-      axios.get('/api/posts').then(function (response) {
-        _this.posts = response.data.results;
+      this.loading = true;
+      axios.get('/api/posts', {
+        params: {
+          page: page
+        }
+      }).then(function (response) {
+        _this.posts = response.data.results.data;
         _this.loading = false;
+        _this.currentPage = response.data.results.current_page;
+        _this.lastPage = response.data.results.last_page;
       });
     },
     truncateText: function truncateText(text, maxLength) {
-      if (text.maxLenght < maxLength) {
+      if (text.length < maxLength) {
         return text;
       } else {
         return text.substring(0, maxLength) + '...';
@@ -1966,7 +1975,7 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   mounted: function mounted() {
-    this.getPosts();
+    this.getPosts(1);
   }
 });
 
@@ -2012,8 +2021,6 @@ var render = function render() {
 
   return _c("header", [_c("nav", {
     staticClass: "navbar navbar-expand-lg navbar-light bg-light"
-  }, [_c("div", {
-    staticClass: "container-fluid"
   }, [_c("a", {
     staticClass: "navbar-brand",
     attrs: {
@@ -2029,14 +2036,14 @@ var render = function render() {
   }, _vm._l(_vm.menuItems, function (item, index) {
     return _c("li", {
       key: index,
-      staticClass: "nav-item active"
+      staticClass: "nav-item"
     }, [_c("a", {
       staticClass: "nav-link",
       attrs: {
         href: item.link
       }
     }, [_vm._v(_vm._s(item.label))])]);
-  }), 0)])])])]);
+  }), 0)])])]);
 };
 
 var staticRenderFns = [function () {
@@ -2047,8 +2054,8 @@ var staticRenderFns = [function () {
     staticClass: "navbar-toggler",
     attrs: {
       type: "button",
-      "data-bs-toggle": "collapse",
-      "data-bs-target": "#navbarSupportedContent",
+      "data-toggle": "collapse",
+      "data-target": "#navbarSupportedContent",
       "aria-controls": "navbarSupportedContent",
       "aria-expanded": "false",
       "aria-label": "Toggle navigation"
@@ -2080,22 +2087,27 @@ var render = function render() {
   return _c("div", {
     staticClass: "container"
   }, [_c("h1", {
-    staticClass: "mb-5 text-center"
-  }, [_vm._v("Post list")]), _vm._v(" "), _vm.loading ? _c("div", {
+    staticClass: "mb-5"
+  }, [_vm._v("Posts list")]), _vm._v(" "), _vm.loading ? _c("div", {
     staticClass: "d-flex justify-content-center"
-  }, [_vm._m(0)]) : _vm._e(), _vm._v(" "), _c("div", {
+  }, [_vm._m(0)]) : _c("div", {
     staticClass: "row"
   }, _vm._l(_vm.posts, function (post, index) {
     return _c("div", {
       key: index,
       staticClass: "card col-12 mb-5"
-    }, [_c("div", {
+    }, [_c("img", {
+      staticClass: "card-img-top p-2",
+      attrs: {
+        src: post.cover
+      }
+    }), _vm._v(" "), _c("div", {
       staticClass: "card-body"
     }, [_c("h5", {
       staticClass: "card-title"
     }, [_vm._v(_vm._s(post.title))]), _vm._v(" "), _c("p", {
       staticClass: "card-text"
-    }, [_vm._v(_vm._s(post.content))]), _vm._v(" "), _c("p", {
+    }, [_vm._v(_vm._s(_vm.truncateText(post.content, 100)))]), _vm._v(" "), _c("p", {
       staticClass: "card-text"
     }, [_vm._v(_vm._s(post.category ? post.category.name : "-"))]), _vm._v(" "), _c("a", {
       staticClass: "btn btn-primary",
@@ -2103,7 +2115,46 @@ var render = function render() {
         href: "#"
       }
     }, [_vm._v("Read more...")])])]);
-  }), 0)]);
+  }), 0), _vm._v(" "), _c("nav", {
+    staticClass: "d-flex justify-content-center"
+  }, [_c("ul", {
+    staticClass: "pagination"
+  }, [_c("li", {
+    staticClass: "page-item",
+    "class": _vm.currentPage == 1 ? "disabled" : ""
+  }, [_c("a", {
+    staticClass: "page-link",
+    attrs: {
+      href: "#"
+    },
+    on: {
+      click: function click($event) {
+        $event.preventDefault();
+        return _vm.getPosts(_vm.currentPage - 1);
+      }
+    }
+  }, [_vm._v("Previous")])]), _vm._v(" "), _c("li", {
+    staticClass: "page-item disabled"
+  }, [_c("span", {
+    staticClass: "page-link",
+    attrs: {
+      href: "#"
+    }
+  }, [_vm._v(_vm._s(_vm.currentPage) + "/" + _vm._s(_vm.lastPage))])]), _vm._v(" "), _c("li", {
+    staticClass: "page-item",
+    "class": _vm.currentPage == _vm.lastPage ? "disabled" : ""
+  }, [_c("a", {
+    staticClass: "page-link",
+    attrs: {
+      href: "#"
+    },
+    on: {
+      click: function click($event) {
+        $event.preventDefault();
+        return _vm.getPosts(_vm.currentPage + 1);
+      }
+    }
+  }, [_vm._v("Next")])])])])]);
 };
 
 var staticRenderFns = [function () {

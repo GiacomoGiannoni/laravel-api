@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Post;
 use App\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
@@ -46,17 +47,17 @@ class PostController extends Controller
             'title' => 'required|max:255',
             'content' => 'required|max:65535',
             'category_id' => 'nullable|exists:categories,id',
-            'tags_id' => 'exists:tags,id',
+            'tags' => 'exists:tags,id',
+            'image' => 'nullable|image|max:8000'
         ]);
         $data = $request->all();
 
+        $img_path = Storage::put('cover', $data['image']);
+        $data['cover'] = $img_path;
         $post = new Post();
+        $slug = $this->calculateSlug($data['title']);
+        $data['slug'] = $slug;
         $post->fill($data);
-
-        $slug = $this->calculateSlug($post->title);
-
-        $post->slug = $slug;
-
         $post->save();
 
         if (array_key_exists('tags', $data)) {
@@ -87,7 +88,8 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $categories = Category::all();
-        return view('admin.posts.edit', compact('post', 'categories'));
+        $tags = Tag::all();
+        return view('admin.posts.edit', compact('post', 'categories', 'tags'));
     }
 
     /**
@@ -102,9 +104,26 @@ class PostController extends Controller
             'title' => 'required|max:255',
             'content' => 'required|max:65535',
             'category_id' => 'nullable|exists:categories,id',
-            'tags' => 'exists:tags,id'
+            'tags' => 'exists:tags,id',
+            'image' => 'nullable|image|max:8000'
         ]);
+
         $data = $request->all();
+        if (array_key_exists('image', $data)) {
+
+            if ($post->cover) {
+                Storage::delete($post->cover);
+            }
+
+            $img_path = Storage::put('cover', $data['image']);
+            $data['cover'] = $img_path;
+        }
+
+        if ($post->title !== $data['title']) {
+            $data['slug'] = $this->calculateSlug($data['title']);
+        }
+
+        $post->update($data);
         if (array_key_exists('tags', $data)) {
             $post->tags()->sync($data['tags']);
         } else {
@@ -114,7 +133,7 @@ class PostController extends Controller
         return redirect()->route('admin.posts.index')->with('status', 'Aggiornato con successo');
     }
 
-   
+
 
     protected function calculateSlug($title) {
         $slug = str::slug($title, '-');
@@ -140,7 +159,23 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        if ($post->cover) {
+            Storage::delete($post->cover);
+        }
+        $post->tags()->sync([]);
         $post->delete();
         return redirect()->route('admin.posts.index')->with('status', 'cancellazione avvenuta con successo!');
+
+    }
+    public function deleteCover(Post $post) {
+
+        if ($post->cover) {
+            Storage::delete($post->cover);
+        }
+
+        $post->cover = null;
+        $post->save();
+
+        return redirect()->route('admin.posts.edit', [ 'post' => $post->id])->with('status', 'Immagine cancellata con successo');
     }
 }

@@ -44,6 +44,12 @@
                         </li>
                     </ul>
 
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.tags.index') }}">Gestione Tag</a>
+                        </li>
+                    </ul>
+
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
                         <!-- Authentication Links -->
@@ -87,7 +93,7 @@
                         {{session('status')}}
                     </div>
                 @endif
-    
+
                 @if ($errors->any())
                     <div class="alert alert-danger mb-5">
                         <ul>
